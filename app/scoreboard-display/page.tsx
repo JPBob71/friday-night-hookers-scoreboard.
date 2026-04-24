@@ -31,6 +31,7 @@ export default function ScoreboardDisplayPage() {
   const blackTotal = useMemo(() => getTeamTotal(game?.players ?? [], "Black"), [game]);
   const clinchedScrew = useMemo(() => (game ? getClinchedScrew(game) : null), [game]);
   const pointsNeededToTie = useMemo(() => (game ? getPointsNeededToTie(game) : null), [game]);
+  const currentThrowerId = game && !game.winner ? game.throwOrder[game.currentThrowIndex] : "";
   const gameStatus = game?.winner
     ? `${game.winner} Wins`
     : clinchedScrew
@@ -40,7 +41,11 @@ export default function ScoreboardDisplayPage() {
   return (
     <main className="min-h-screen w-full bg-night p-3 text-white lg:p-5 xl:p-6">
       <div className="grid min-h-[calc(100vh-24px)] w-full gap-4 lg:min-h-[calc(100vh-40px)] lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.68fr)_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(420px,0.62fr)_minmax(0,1fr)]">
-        <TeamColumn team="Red" players={rows.map((row) => row.Red)} />
+        <TeamColumn
+          team="Red"
+          players={rows.map((row) => row.Red)}
+          currentThrowerId={currentThrowerId}
+        />
 
         <CenterPanel
           game={game}
@@ -50,13 +55,25 @@ export default function ScoreboardDisplayPage() {
           pointsNeededToTie={pointsNeededToTie ?? "Round is tied"}
         />
 
-        <TeamColumn team="Black" players={rows.map((row) => row.Black)} />
+        <TeamColumn
+          team="Black"
+          players={rows.map((row) => row.Black)}
+          currentThrowerId={currentThrowerId}
+        />
       </div>
     </main>
   );
 }
 
-function TeamColumn({ team, players }: { team: TeamName; players: Array<GamePlayer | null> }) {
+function TeamColumn({
+  team,
+  players,
+  currentThrowerId,
+}: {
+  team: TeamName;
+  players: Array<GamePlayer | null>;
+  currentThrowerId: string;
+}) {
   const isRed = team === "Red";
 
   return (
@@ -70,14 +87,26 @@ function TeamColumn({ team, players }: { team: TeamName; players: Array<GamePlay
         <h2 className="text-5xl font-black leading-none xl:text-7xl">{team} Team</h2>
       </header>
 
-      <div className="grid gap-3 xl:gap-4">
+      <div className="grid gap-2 xl:gap-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_88px_58px_58px_76px] items-end gap-2 px-3 text-xs font-black uppercase text-white/70 xl:grid-cols-[minmax(0,1fr)_150px_96px_96px_118px] xl:gap-3 xl:px-5 xl:text-lg">
+          <p>Name</p>
+          <p className="text-center">Round</p>
+          <p className="text-center">Ticks</p>
+          <p className="text-center">300s</p>
+          <p className="text-center">Total</p>
+        </div>
         {players.length === 0 ? (
           <div className="rounded-lg border border-white/20 bg-white/10 p-6 text-center text-3xl font-black text-white/70">
             No players yet
           </div>
         ) : (
           players.map((player, index) => (
-            <PlayerRow key={player?.id ?? `${team}-${index}`} player={player} />
+            <PlayerRow
+              key={player?.id ?? `${team}-${index}`}
+              player={player}
+              team={team}
+              isCurrentThrower={player?.id === currentThrowerId}
+            />
           ))
         )}
       </div>
@@ -85,30 +114,38 @@ function TeamColumn({ team, players }: { team: TeamName; players: Array<GamePlay
   );
 }
 
-function PlayerRow({ player }: { player: GamePlayer | null }) {
+function PlayerRow({
+  player,
+  team,
+  isCurrentThrower,
+}: {
+  player: GamePlayer | null;
+  team: TeamName;
+  isCurrentThrower: boolean;
+}) {
+  const isRed = team === "Red";
+
   if (!player) {
-    return <div className="min-h-24 rounded-lg border border-white/15 bg-white/10 xl:min-h-32" />;
+    return <div className="min-h-20 rounded-lg border border-white/15 bg-white/10 xl:min-h-24" />;
   }
 
   return (
-    <div className="grid min-h-24 grid-cols-[minmax(0,1fr)_minmax(140px,0.38fr)] gap-4 rounded-lg bg-white p-4 text-night xl:min-h-32 xl:grid-cols-[minmax(0,1fr)_minmax(190px,0.36fr)] xl:p-5">
-      <div className="min-w-0">
-        <p className="truncate text-4xl font-black leading-none xl:text-6xl">{player.name}</p>
-        <div className="mt-3 grid grid-cols-2 gap-2 xl:mt-5 xl:gap-3">
-          <Stat label="Ticks" value={player.tickStreak} />
-          <Stat label="300s" value={player.total300s} />
-        </div>
-      </div>
-      <div className="grid gap-2 text-center xl:gap-3">
-        <div className="rounded-lg bg-lane p-2 xl:p-3">
-          <p className="text-sm font-black uppercase text-night/60 xl:text-base">Round</p>
-          <p className="text-4xl font-black xl:text-6xl">{player.roundScore}</p>
-        </div>
-        <div className="rounded-lg bg-night p-2 text-white xl:p-3">
-          <p className="text-sm font-black uppercase text-white/65 xl:text-base">Total</p>
-          <p className="text-4xl font-black xl:text-6xl">{player.total}</p>
-        </div>
-      </div>
+    <div
+      className={`grid min-h-20 grid-cols-[minmax(0,1fr)_88px_58px_58px_76px] items-center gap-2 rounded-lg border-4 px-3 py-3 text-night transition-all duration-150 xl:min-h-24 xl:grid-cols-[minmax(0,1fr)_150px_96px_96px_118px] xl:gap-3 xl:px-5 ${
+        isCurrentThrower
+          ? isRed
+            ? "border-white bg-red-50 shadow-[0_0_0_6px_rgba(255,255,255,0.2),0_0_34px_rgba(255,255,255,0.4)]"
+            : "border-white bg-neutral-100 shadow-[0_0_0_6px_rgba(255,255,255,0.18),0_0_34px_rgba(255,255,255,0.34)]"
+          : "border-transparent bg-white/90"
+      }`}
+    >
+      <p className="truncate text-3xl font-black leading-none xl:text-6xl">{player.name}</p>
+      <p className="text-center text-5xl font-black leading-none xl:text-8xl">{player.roundScore}</p>
+      <p className="text-center text-3xl font-black leading-none xl:text-6xl">{player.tickStreak}</p>
+      <p className="text-center text-3xl font-black leading-none xl:text-6xl">{player.total300s}</p>
+      <p className="text-center text-2xl font-black leading-none text-night/70 xl:text-5xl">
+        {player.total}
+      </p>
     </div>
   );
 }
@@ -133,7 +170,7 @@ function CenterPanel({
           <p className="text-lg font-black uppercase text-night/55 xl:text-2xl">
             Friday Night Hookers
           </p>
-          <h1 className="mt-2 text-6xl font-black leading-none xl:text-8xl">
+          <h1 className="mt-2 text-5xl font-black leading-none xl:text-6xl">
             Round {game?.currentRound ?? 1}
           </h1>
           <p className="mt-3 text-xl font-black text-night/60 xl:text-3xl">
@@ -141,13 +178,14 @@ function CenterPanel({
           </p>
         </div>
 
-        <DisplayCard label="Score Status" value={status} />
+        <DisplayCard label="Status" value={status} size="large" />
         <DisplayCard
           label="Screws"
           value={`${game?.redWinningScrews ?? 0} - ${game?.blackWinningScrews ?? 0}`}
           sublabel="Red vs Black"
+          size="hero"
         />
-        <DisplayCard label="Needs To Tie" value={pointsNeededToTie} />
+        <DisplayCard label="Needs To Tie" value={pointsNeededToTie} size="medium" />
       </div>
 
       <div className="grid gap-4 xl:gap-5">
@@ -175,28 +213,28 @@ function DisplayCard({
   value,
   sublabel,
   compact = false,
+  size = compact ? "compact" : "medium",
 }: {
   label: string;
   value: string | number;
   sublabel?: string;
   compact?: boolean;
+  size?: "compact" | "medium" | "large" | "hero";
 }) {
+  const valueSize = {
+    compact: "text-5xl xl:text-7xl",
+    medium: "text-5xl xl:text-6xl",
+    large: "text-6xl xl:text-7xl",
+    hero: "text-8xl xl:text-9xl",
+  }[size];
+
   return (
     <div className="rounded-lg bg-[#f7f3ea] p-4 xl:p-5">
       <p className="text-sm font-black uppercase text-night/55 xl:text-lg">{label}</p>
-      <p className={`${compact ? "text-5xl xl:text-7xl" : "text-5xl xl:text-6xl"} mt-2 font-black leading-none`}>
+      <p className={`${valueSize} mt-2 font-black leading-none`}>
         {value}
       </p>
       {sublabel && <p className="mt-2 text-lg font-bold text-night/60 xl:text-2xl">{sublabel}</p>}
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg bg-[#f7f3ea] p-2 text-center xl:p-3">
-      <p className="text-xs font-black uppercase text-night/55 xl:text-sm">{label}</p>
-      <p className="text-3xl font-black xl:text-5xl">{value}</p>
     </div>
   );
 }
