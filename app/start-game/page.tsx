@@ -48,6 +48,7 @@ export default function StartGamePage() {
       ...player,
       team: index % 2 === 0 ? "Red" : "Black",
       total: 0,
+      roundScore: 0,
       total300s: 0,
       tickStreak: 0,
     }));
