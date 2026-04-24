@@ -74,9 +74,10 @@ export default function ScoreboardPage() {
     const scrollTimer = window.setTimeout(() => {
       currentThrowerRowRef.current?.scrollIntoView({
         behavior: "smooth",
+        inline: "nearest",
         block: "center",
       });
-    }, 80);
+    }, 40);
 
     return () => window.clearTimeout(scrollTimer);
   }, [currentThrower?.id]);
@@ -466,12 +467,12 @@ function TeamPlayers({
             <div
               key={isCurrentThrower ? `${player.id}-${advancePulseKey}` : player.id}
               ref={isCurrentThrower ? currentThrowerRowRef : null}
-              className={`rounded-lg border-4 p-4 transition-all duration-300 ${
+              className={`rounded-lg border-4 p-4 transition-all duration-150 ease-out ${
                 isCurrentThrower
                   ? isRed
-                    ? "animate-thrower-pulse border-scoreRed bg-red-50 shadow-[0_0_0_5px_rgba(202,37,55,0.16),0_14px_34px_rgba(202,37,55,0.22)]"
-                    : "animate-thrower-pulse border-scoreBlack bg-neutral-100 shadow-[0_0_0_5px_rgba(16,24,32,0.16),0_14px_34px_rgba(16,24,32,0.22)]"
-                  : "border-transparent bg-[#f7f3ea]"
+                    ? "animate-thrower-pulse scale-[1.025] border-scoreRed bg-red-100 shadow-[0_0_0_6px_rgba(202,37,55,0.2),0_16px_36px_rgba(202,37,55,0.28)]"
+                    : "animate-thrower-pulse scale-[1.025] border-scoreBlack bg-white shadow-[0_0_0_6px_rgba(16,24,32,0.18),0_16px_36px_rgba(16,24,32,0.26)]"
+                  : "scale-100 border-transparent bg-[#f7f3ea] opacity-65"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
