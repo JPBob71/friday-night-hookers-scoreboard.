@@ -8,6 +8,7 @@ export type TeamName = "Red" | "Black";
 export type GamePlayer = Player & {
   team: TeamName;
   total: number;
+  roundScore: number;
   total300s: number;
   tickStreak: number;
 };
@@ -165,6 +166,7 @@ function normalizeGame(game: Partial<SavedGame>): SavedGame {
   const players = (game.players ?? []).map((player) => ({
     ...player,
     total: player.total ?? 0,
+    roundScore: player.roundScore ?? 0,
     total300s: player.total300s ?? 0,
     tickStreak: player.tickStreak ?? 0,
   })) as GamePlayer[];
