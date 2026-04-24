@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import {
   buildThrowOrder,
@@ -21,6 +21,8 @@ const winningScrewsNeeded = 10;
 
 export default function ScoreboardPage() {
   const [game, setGame] = useState<SavedGame | null>(null);
+  const currentThrowerRowRef = useRef<HTMLDivElement | null>(null);
+  const [advancePulseKey, setAdvancePulseKey] = useState(0);
 
   useEffect(() => {
     setGame(loadGame());
@@ -35,10 +37,6 @@ export default function ScoreboardPage() {
   const currentThrower = useMemo(() => {
     if (!game || game.winner) return null;
     return game.players.find((player) => player.id === game.throwOrder[game.currentThrowIndex]) ?? null;
-  }, [game]);
-  const nextThrower = useMemo(() => {
-    if (!game || game.winner) return null;
-    return game.players.find((player) => player.id === game.throwOrder[game.currentThrowIndex + 1]) ?? null;
   }, [game]);
 
   const teamScores = useMemo(() => {
@@ -64,6 +62,24 @@ export default function ScoreboardPage() {
     if (!game || game.winner) return null;
     return getClinchedScrew(game);
   }, [game]);
+  const nextThrower = useMemo(() => {
+    if (!game || game.winner) return null;
+    return game.players.find((player) => player.id === game.throwOrder[game.currentThrowIndex + 1]) ?? null;
+  }, [game]);
+
+  useEffect(() => {
+    if (!currentThrower?.id) return;
+
+    setAdvancePulseKey((key) => key + 1);
+    const scrollTimer = window.setTimeout(() => {
+      currentThrowerRowRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 80);
+
+    return () => window.clearTimeout(scrollTimer);
+  }, [currentThrower?.id]);
 
   function recordThrow(score: number) {
     if (!game || !currentThrower || game.winner) return;
@@ -271,7 +287,9 @@ export default function ScoreboardPage() {
             </div>
             <div className="rounded-lg bg-[#f7f3ea] p-3">
               <p className="text-sm font-black uppercase text-night/60">Points Needed To Tie</p>
-              <p className="mt-1 text-xl font-black">{pointsNeededToTie}</p>
+              <p className="mt-1 text-xl font-black">
+                {pointsNeededToTie}
+              </p>
             </div>
           </section>
 
@@ -291,7 +309,7 @@ export default function ScoreboardPage() {
                   key={score}
                   onClick={() => recordThrow(score)}
                   disabled={Boolean(game.winner)}
-                  className="min-h-16 rounded-lg bg-lane px-3 py-4 text-2xl font-black text-night shadow-sm active:scale-[0.99] disabled:bg-night/20 disabled:text-night/40"
+                  className="min-h-20 rounded-lg bg-lane px-3 py-5 text-3xl font-black text-night shadow-sm transition-transform active:scale-[0.98] disabled:bg-night/20 disabled:text-night/40"
                 >
                   {score}
                 </button>
@@ -333,12 +351,16 @@ export default function ScoreboardPage() {
               players={game.players.filter((player) => player.team === "Red")}
               spankyIndex={game.teamSpankyIndexes.Red}
               currentThrowerId={currentThrower?.id ?? ""}
+              currentThrowerRowRef={currentThrowerRowRef}
+              advancePulseKey={advancePulseKey}
             />
             <TeamPlayers
               team="Black"
               players={game.players.filter((player) => player.team === "Black")}
               spankyIndex={game.teamSpankyIndexes.Black}
               currentThrowerId={currentThrower?.id ?? ""}
+              currentThrowerRowRef={currentThrowerRowRef}
+              advancePulseKey={advancePulseKey}
             />
           </section>
 
@@ -417,11 +439,15 @@ function TeamPlayers({
   players,
   spankyIndex,
   currentThrowerId,
+  currentThrowerRowRef,
+  advancePulseKey,
 }: {
   team: TeamName;
   players: GamePlayer[];
   spankyIndex: number;
   currentThrowerId: string;
+  currentThrowerRowRef: RefObject<HTMLDivElement | null>;
+  advancePulseKey: number;
 }) {
   const isRed = team === "Red";
   const currentSpankyId = players[spankyIndex]?.id ?? "";
@@ -438,12 +464,13 @@ function TeamPlayers({
 
           return (
             <div
-              key={player.id}
-              className={`rounded-lg border-4 p-4 ${
+              key={isCurrentThrower ? `${player.id}-${advancePulseKey}` : player.id}
+              ref={isCurrentThrower ? currentThrowerRowRef : null}
+              className={`rounded-lg border-4 p-4 transition-all duration-300 ${
                 isCurrentThrower
                   ? isRed
-                    ? "border-scoreRed bg-red-50"
-                    : "border-scoreBlack bg-neutral-100"
+                    ? "animate-thrower-pulse border-scoreRed bg-red-50 shadow-[0_0_0_5px_rgba(202,37,55,0.16),0_14px_34px_rgba(202,37,55,0.22)]"
+                    : "animate-thrower-pulse border-scoreBlack bg-neutral-100 shadow-[0_0_0_5px_rgba(16,24,32,0.16),0_14px_34px_rgba(16,24,32,0.22)]"
                   : "border-transparent bg-[#f7f3ea]"
               }`}
             >
