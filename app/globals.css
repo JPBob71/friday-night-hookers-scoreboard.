@@ -25,3 +25,27 @@ button,
 input {
   font: inherit;
 }
+
+@keyframes thrower-pulse {
+  0% {
+    transform: scale(0.985);
+  }
+
+  45% {
+    transform: scale(1.015);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-thrower-pulse {
+  animation: thrower-pulse 620ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-thrower-pulse {
+    animation: none;
+  }
+}
