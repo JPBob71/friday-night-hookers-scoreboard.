@@ -14,6 +14,7 @@ import {
   saveGame,
   TeamName,
 } from "@/lib/gameStorage";
+import { getClinchedScrew, getPointsNeededToTie, getTeamTotal } from "@/lib/gameDerived";
 
 const scoreOptions = [0, 10, 15, 20, 25, 30, 50, 60, 75, 100, 200, 300];
 const winningScrewsNeeded = 10;
@@ -47,12 +48,7 @@ export default function ScoreboardPage() {
 
   const pointsNeededToTie = useMemo(() => {
     if (!game) return null;
-    const { Red, Black } = game.roundTotals;
-
-    if (Red === Black) return { team: null, points: 0 };
-    return Red < Black
-      ? { team: "Red" as TeamName, points: Black - Red }
-      : { team: "Black" as TeamName, points: Red - Black };
+    return getPointsNeededToTie(game);
   }, [game]);
   const playersThrown = game
     ? game.winner
@@ -83,6 +79,7 @@ export default function ScoreboardPage() {
         return {
           ...player,
           total: player.total + score,
+          roundScore: player.roundScore + score,
           total300s: score === 300 ? player.total300s + 1 : player.total300s,
           tickStreak: score === 300 ? player.tickStreak + 1 : 0,
         };
@@ -119,7 +116,7 @@ export default function ScoreboardPage() {
 
       return {
         ...current,
-        players,
+        players: winner ? players : resetPlayerRoundScores(players),
         currentThrowIndex: 0,
         currentRound: winner ? current.currentRound : current.currentRound + 1,
         teamSpankyIndexes: winner ? current.teamSpankyIndexes : nextSpankyIndexes,
@@ -154,6 +151,7 @@ export default function ScoreboardPage() {
         players: current.players.map((player) => ({
           ...player,
           total: 0,
+          roundScore: 0,
           total300s: 0,
           tickStreak: 0,
         })),
@@ -256,11 +254,7 @@ export default function ScoreboardPage() {
             </div>
             <div className="rounded-lg bg-[#f7f3ea] p-3">
               <p className="text-sm font-black uppercase text-night/60">Points Needed To Tie</p>
-              <p className="mt-1 text-xl font-black">
-                {pointsNeededToTie?.team
-                  ? `${pointsNeededToTie.team} needs ${pointsNeededToTie.points}`
-                  : "Round is tied"}
-              </p>
+              <p className="mt-1 text-xl font-black">{pointsNeededToTie}</p>
             </div>
           </section>
 
@@ -318,37 +312,14 @@ export default function ScoreboardPage() {
   );
 }
 
-function getTeamTotal(players: GamePlayer[], team: TeamName) {
-  return players
-    .filter((player) => player.team === team)
-    .reduce((total, player) => total + player.total, 0);
-}
-
 function getRoundWinner(roundTotals: Record<TeamName, number>): TeamName | null {
   if (roundTotals.Red > roundTotals.Black) return "Red";
   if (roundTotals.Black > roundTotals.Red) return "Black";
   return null;
 }
 
-function getClinchedScrew(game: SavedGame): TeamName | null {
-  const redTotal = game.roundTotals.Red;
-  const blackTotal = game.roundTotals.Black;
-  if (redTotal === blackTotal) return null;
-
-  const leadingTeam: TeamName = redTotal > blackTotal ? "Red" : "Black";
-  const trailingTeam: TeamName = leadingTeam === "Red" ? "Black" : "Red";
-  const leadingTotal = game.roundTotals[leadingTeam];
-  const trailingTotal = game.roundTotals[trailingTeam];
-  const trailingTeamRemainingMax = getRemainingUnthrownCount(game, trailingTeam) * 300;
-
-  return trailingTotal + trailingTeamRemainingMax < leadingTotal ? leadingTeam : null;
-}
-
-function getRemainingUnthrownCount(game: SavedGame, team: TeamName) {
-  return game.throwOrder.slice(game.currentThrowIndex).filter((playerId) => {
-    const player = game.players.find((candidate) => candidate.id === playerId);
-    return player?.team === team;
-  }).length;
+function resetPlayerRoundScores(players: GamePlayer[]) {
+  return players.map((player) => ({ ...player, roundScore: 0 }));
 }
 
 function TeamPanel({
