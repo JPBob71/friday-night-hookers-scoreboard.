@@ -36,6 +36,10 @@ export default function ScoreboardPage() {
     if (!game || game.winner) return null;
     return game.players.find((player) => player.id === game.throwOrder[game.currentThrowIndex]) ?? null;
   }, [game]);
+  const nextThrower = useMemo(() => {
+    if (!game || game.winner) return null;
+    return game.players.find((player) => player.id === game.throwOrder[game.currentThrowIndex + 1]) ?? null;
+  }, [game]);
 
   const teamScores = useMemo(() => {
     if (!game) return { Red: 0, Black: 0 };
@@ -138,6 +142,19 @@ export default function ScoreboardPage() {
       const previous = current.history[current.history.length - 1];
       const remainingHistory = current.history.slice(0, -1);
       return restoreGameSnapshot(previous, remainingHistory);
+    });
+  }
+
+  function correctCurrentThrower(playerId: string) {
+    setGame((current) => {
+      if (!current || current.winner) return current;
+      const throwIndex = current.throwOrder.indexOf(playerId);
+      if (throwIndex === -1) return current;
+
+      return {
+        ...current,
+        currentThrowIndex: throwIndex,
+      };
     });
   }
 
@@ -259,9 +276,15 @@ export default function ScoreboardPage() {
           </section>
 
           <section className="grid gap-3 rounded-lg bg-white p-4 shadow-sm">
-            <h2 className="text-xl font-black">
-              Score {currentThrower ? currentThrower.name : "Game Over"}
-            </h2>
+            <div className="rounded-lg bg-night p-4 text-center text-white">
+              <p className="text-sm font-black uppercase text-white/65">Current Thrower</p>
+              <p className="mt-1 text-4xl font-black">
+                {currentThrower ? currentThrower.name : "Game Over"}
+              </p>
+              <p className="mt-2 text-lg font-bold text-white/75">
+                {nextThrower ? `Next Up: ${nextThrower.name}` : "Last throw of the round"}
+              </p>
+            </div>
             <div className="grid grid-cols-3 gap-3">
               {scoreOptions.map((score) => (
                 <button
@@ -274,6 +297,34 @@ export default function ScoreboardPage() {
                 </button>
               ))}
             </div>
+            <details className="rounded-lg bg-[#f7f3ea] p-3">
+              <summary className="cursor-pointer text-sm font-black uppercase text-night/60">
+                Admin Correction
+              </summary>
+              <div className="mt-3 grid gap-2">
+                <label className="text-sm font-black uppercase text-night/60" htmlFor="current-thrower">
+                  Set Current Thrower
+                </label>
+                <select
+                  id="current-thrower"
+                  value={currentThrower?.id ?? ""}
+                  onChange={(event) => correctCurrentThrower(event.target.value)}
+                  disabled={Boolean(game.winner)}
+                  className="min-h-12 rounded-lg border-2 border-night/20 bg-white px-3 text-lg font-bold"
+                >
+                  {game.throwOrder.map((playerId, index) => {
+                    const player = game.players.find((candidate) => candidate.id === playerId);
+                    if (!player) return null;
+
+                    return (
+                      <option key={`${playerId}-${index}`} value={playerId}>
+                        {index + 1}. {player.name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </details>
           </section>
 
           <section className="grid gap-4">
