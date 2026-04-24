@@ -335,25 +335,20 @@ function getClinchedScrew(game: SavedGame): TeamName | null {
   const blackTotal = game.roundTotals.Black;
   if (redTotal === blackTotal) return null;
 
-  const remainingMax = getRemainingMaxScores(game);
-  if (redTotal > blackTotal && blackTotal + remainingMax.Black < redTotal) return "Red";
-  if (blackTotal > redTotal && redTotal + remainingMax.Red < blackTotal) return "Black";
-  return null;
+  const leadingTeam: TeamName = redTotal > blackTotal ? "Red" : "Black";
+  const trailingTeam: TeamName = leadingTeam === "Red" ? "Black" : "Red";
+  const leadingTotal = game.roundTotals[leadingTeam];
+  const trailingTotal = game.roundTotals[trailingTeam];
+  const trailingTeamRemainingMax = getRemainingUnthrownCount(game, trailingTeam) * 300;
+
+  return trailingTotal + trailingTeamRemainingMax < leadingTotal ? leadingTeam : null;
 }
 
-function getRemainingMaxScores(game: SavedGame): Record<TeamName, number> {
-  return game.throwOrder.slice(game.currentThrowIndex).reduce(
-    (remaining, playerId) => {
-      const player = game.players.find((candidate) => candidate.id === playerId);
-      if (!player) return remaining;
-
-      return {
-        ...remaining,
-        [player.team]: remaining[player.team] + 300,
-      };
-    },
-    { Red: 0, Black: 0 },
-  );
+function getRemainingUnthrownCount(game: SavedGame, team: TeamName) {
+  return game.throwOrder.slice(game.currentThrowIndex).filter((playerId) => {
+    const player = game.players.find((candidate) => candidate.id === playerId);
+    return player?.team === team;
+  }).length;
 }
 
 function TeamPanel({
