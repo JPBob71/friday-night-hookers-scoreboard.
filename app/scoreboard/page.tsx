@@ -60,6 +60,10 @@ export default function ScoreboardPage() {
       : game.currentThrowIndex
     : 0;
   const playersInRound = game?.throwOrder.length ?? 0;
+  const clinchedScrew = useMemo(() => {
+    if (!game || game.winner) return null;
+    return getClinchedScrew(game);
+  }, [game]);
 
   function recordThrow(score: number) {
     if (!game || !currentThrower || game.winner) return;
@@ -212,6 +216,16 @@ export default function ScoreboardPage() {
               <RoundTotal label="Red" value={game.roundTotals.Red} />
               <RoundTotal label="Black" value={game.roundTotals.Black} />
             </div>
+            {clinchedScrew && (
+              <div
+                className={`rounded-lg p-3 text-center text-white ${
+                  clinchedScrew === "Red" ? "bg-scoreRed" : "bg-scoreBlack"
+                }`}
+              >
+                <p className="text-sm font-black uppercase">Screw Clinched</p>
+                <p className="mt-1 text-2xl font-black">{clinchedScrew} Team</p>
+              </div>
+            )}
             <div className="rounded-lg bg-lane p-3 text-center text-night">
               <p className="text-sm font-black uppercase">Next Player</p>
               <p className="mt-1 text-2xl font-black">
@@ -314,6 +328,32 @@ function getRoundWinner(roundTotals: Record<TeamName, number>): TeamName | null 
   if (roundTotals.Red > roundTotals.Black) return "Red";
   if (roundTotals.Black > roundTotals.Red) return "Black";
   return null;
+}
+
+function getClinchedScrew(game: SavedGame): TeamName | null {
+  const redTotal = game.roundTotals.Red;
+  const blackTotal = game.roundTotals.Black;
+  if (redTotal === blackTotal) return null;
+
+  const remainingMax = getRemainingMaxScores(game);
+  if (redTotal > blackTotal && blackTotal + remainingMax.Black < redTotal) return "Red";
+  if (blackTotal > redTotal && redTotal + remainingMax.Red < blackTotal) return "Black";
+  return null;
+}
+
+function getRemainingMaxScores(game: SavedGame): Record<TeamName, number> {
+  return game.throwOrder.slice(game.currentThrowIndex).reduce(
+    (remaining, playerId) => {
+      const player = game.players.find((candidate) => candidate.id === playerId);
+      if (!player) return remaining;
+
+      return {
+        ...remaining,
+        [player.team]: remaining[player.team] + 300,
+      };
+    },
+    { Red: 0, Black: 0 },
+  );
 }
 
 function TeamPanel({
