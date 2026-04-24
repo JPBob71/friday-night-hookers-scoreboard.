@@ -28,20 +28,20 @@ input {
 
 @keyframes thrower-pulse {
   0% {
-    transform: scale(0.985);
+    transform: scale(1);
   }
 
-  45% {
-    transform: scale(1.015);
+  55% {
+    transform: scale(1.035);
   }
 
   100% {
-    transform: scale(1);
+    transform: scale(1.025);
   }
 }
 
 .animate-thrower-pulse {
-  animation: thrower-pulse 620ms ease-out;
+  animation: thrower-pulse 130ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
