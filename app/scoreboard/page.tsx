@@ -54,6 +54,12 @@ export default function ScoreboardPage() {
       ? { team: "Red" as TeamName, points: Black - Red }
       : { team: "Black" as TeamName, points: Red - Black };
   }, [game]);
+  const playersThrown = game
+    ? game.winner
+      ? game.throwOrder.length
+      : game.currentThrowIndex
+    : 0;
+  const playersInRound = game?.throwOrder.length ?? 0;
 
   function recordThrow(score: number) {
     if (!game || !currentThrower || game.winner) return;
@@ -189,6 +195,31 @@ export default function ScoreboardPage() {
             <p className="text-lg font-bold text-night/70">Everyone is shooting for 300!</p>
           </section>
 
+          <section className="grid gap-3 rounded-lg bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-black uppercase text-night/60">Round Status</p>
+                <p className="text-2xl font-black">Round {game.currentRound}</p>
+              </div>
+              <div className="rounded-lg bg-[#f7f3ea] px-3 py-2 text-right">
+                <p className="text-sm font-black uppercase text-night/60">Thrown</p>
+                <p className="text-xl font-black">
+                  {playersThrown} of {playersInRound}
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <RoundTotal label="Red" value={game.roundTotals.Red} />
+              <RoundTotal label="Black" value={game.roundTotals.Black} />
+            </div>
+            <div className="rounded-lg bg-lane p-3 text-center text-night">
+              <p className="text-sm font-black uppercase">Next Player</p>
+              <p className="mt-1 text-2xl font-black">
+                {currentThrower ? currentThrower.name : "Game Over"}
+              </p>
+            </div>
+          </section>
+
           <section className="grid grid-cols-2 gap-3">
             <TeamPanel
               name="Red"
@@ -309,6 +340,17 @@ function TeamPanel({
         <p className="text-sm font-black uppercase">Team Score</p>
         <p className="text-2xl font-black">{score}</p>
       </div>
+    </div>
+  );
+}
+
+function RoundTotal({ label, value }: { label: TeamName; value: number }) {
+  const isRed = label === "Red";
+
+  return (
+    <div className={`rounded-lg p-3 text-center text-white ${isRed ? "bg-scoreRed" : "bg-scoreBlack"}`}>
+      <p className="text-sm font-black uppercase">{label} Total</p>
+      <p className="text-3xl font-black">{value}</p>
     </div>
   );
 }
