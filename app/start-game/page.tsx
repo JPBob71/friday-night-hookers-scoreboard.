@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { loadRoster, Player, saveGame, TeamName } from "@/lib/gameStorage";
+import { createGame, GamePlayer, loadRoster, Player, saveGame, TeamName } from "@/lib/gameStorage";
 
 type TeamAssignments = Record<TeamName, Player[]>;
 
@@ -44,13 +44,16 @@ export default function StartGamePage() {
     });
 
     setTeams(nextTeams);
-    saveGame({
-      players: shuffled.map((player, index) => ({
-        ...player,
-        team: index % 2 === 0 ? "Red" : "Black",
-        total: 0,
-      })),
-    });
+    const gamePlayers: GamePlayer[] = shuffled.map((player, index) => ({
+      ...player,
+      team: index % 2 === 0 ? "Red" : "Black",
+      total: 0,
+      roundScore: 0,
+      total300s: 0,
+      tickStreak: 0,
+    }));
+
+    saveGame(createGame(gamePlayers));
   }
 
   return (
