@@ -88,12 +88,12 @@ function TeamColumn({
       </header>
 
       <div className="grid gap-2 xl:gap-3">
-        <div className="grid grid-cols-[minmax(7.5rem,1fr)_3.25rem_2.25rem_2.5rem_3rem] items-end gap-1 px-3 text-[10px] font-black uppercase text-white/70 xl:grid-cols-[minmax(13rem,1fr)_6rem_4.25rem_4.25rem_5rem] xl:gap-3 xl:px-5 xl:text-lg">
+        <div className="grid grid-cols-[minmax(9.5rem,1fr)_4.5rem_3rem_3.25rem_4rem] items-end gap-3 px-3 text-[10px] font-black uppercase text-white/70 xl:grid-cols-[minmax(16rem,1fr)_7rem_4.75rem_4.75rem_6rem] xl:px-5 xl:text-lg">
           <p>Name</p>
-          <p className="text-center">Round</p>
-          <p className="text-center">Ticks</p>
-          <p className="text-center">300s</p>
-          <p className="text-center">Total</p>
+          <p className="text-right">Round</p>
+          <p className="text-right">Ticks</p>
+          <p className="text-right">300s</p>
+          <p className="text-right">Total</p>
         </div>
         {players.length === 0 ? (
           <div className="rounded-lg border border-white/20 bg-white/10 p-6 text-center text-3xl font-black text-white/70">
@@ -131,7 +131,7 @@ function PlayerRow({
 
   return (
     <div
-      className={`grid min-h-20 grid-cols-[minmax(7.5rem,1fr)_3.25rem_2.25rem_2.5rem_3rem] items-center gap-1 rounded-lg border-4 px-3 py-3 text-night transition-all duration-150 xl:min-h-24 xl:grid-cols-[minmax(13rem,1fr)_6rem_4.25rem_4.25rem_5rem] xl:gap-3 xl:px-5 ${
+      className={`grid min-h-20 grid-cols-[minmax(9.5rem,1fr)_4.5rem_3rem_3.25rem_4rem] items-center gap-3 rounded-lg border-4 px-3 py-3 text-night transition-all duration-150 xl:min-h-24 xl:grid-cols-[minmax(16rem,1fr)_7rem_4.75rem_4.75rem_6rem] xl:px-5 ${
         isCurrentThrower
           ? isRed
             ? "border-white bg-red-50 shadow-[0_0_0_6px_rgba(255,255,255,0.2),0_0_34px_rgba(255,255,255,0.4)]"
@@ -140,10 +140,10 @@ function PlayerRow({
       }`}
     >
       <p className="min-w-0 truncate text-2xl font-black leading-none xl:text-5xl">{player.name}</p>
-      <p className="text-center text-4xl font-black leading-none xl:text-7xl">{player.roundScore}</p>
-      <p className="text-center text-2xl font-black leading-none xl:text-5xl">{player.tickStreak}</p>
-      <p className="text-center text-2xl font-black leading-none xl:text-5xl">{player.total300s}</p>
-      <p className="text-center text-xl font-black leading-none text-night/70 xl:text-4xl">
+      <p className="text-right text-3xl font-black leading-none tabular-nums xl:text-6xl">{player.roundScore}</p>
+      <p className="text-right text-2xl font-black leading-none tabular-nums xl:text-4xl">{player.tickStreak}</p>
+      <p className="text-right text-2xl font-black leading-none tabular-nums xl:text-4xl">{player.total300s}</p>
+      <p className="text-right text-xl font-black leading-none text-night/70 tabular-nums xl:text-4xl">
         {player.total}
       </p>
     </div>
