@@ -20,6 +20,12 @@ export default function Home() {
           <BigLink href="/scoreboard" variant="black">
             Scoreboard
           </BigLink>
+          <div className="grid gap-2">
+            <BigLink href="/scoreboard-display">Display Mode (TV)</BigLink>
+            <p className="text-center text-sm font-bold text-white/75">
+              Use this on the TV or second screen.
+            </p>
+          </div>
         </nav>
       </div>
     </main>

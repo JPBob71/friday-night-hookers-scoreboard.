@@ -229,6 +229,17 @@ export default function ScoreboardPage() {
                   : "Ready"}
             </h2>
             <p className="text-lg font-bold text-night/70">Everyone is shooting for 300!</p>
+            <div className="grid gap-1 rounded-lg bg-[#f7f3ea] p-3">
+              <Link
+                href="/scoreboard-display"
+                className="flex min-h-14 items-center justify-center rounded-lg bg-night px-4 py-3 text-lg font-black text-white active:scale-[0.99]"
+              >
+                Display Mode (TV)
+              </Link>
+              <p className="text-sm font-bold text-night/60">
+                Use this on the TV or second screen.
+              </p>
+            </div>
           </section>
 
           <section className="grid gap-3 rounded-lg bg-white p-4 shadow-sm">
