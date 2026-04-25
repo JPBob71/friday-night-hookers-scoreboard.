@@ -40,7 +40,7 @@ export default function ScoreboardDisplayPage() {
 
   return (
     <main className="min-h-screen w-full bg-night p-3 text-white lg:p-5 xl:p-6">
-      <div className="grid min-h-[calc(100vh-24px)] w-full gap-4 lg:min-h-[calc(100vh-40px)] lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.68fr)_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(420px,0.62fr)_minmax(0,1fr)]">
+      <div className="grid min-h-[calc(100vh-24px)] w-full gap-4 lg:min-h-[calc(100vh-40px)] lg:grid-cols-[minmax(0,1fr)_minmax(240px,0.48fr)_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.56fr)_minmax(0,1fr)] xl:gap-5">
         <TeamColumn
           team="Red"
           players={rows.map((row) => row.Red)}
@@ -88,7 +88,7 @@ function TeamColumn({
       </header>
 
       <div className="grid gap-2 xl:gap-3">
-        <div className="grid grid-cols-[minmax(0,1fr)_88px_58px_58px_76px] items-end gap-2 px-3 text-xs font-black uppercase text-white/70 xl:grid-cols-[minmax(0,1fr)_150px_96px_96px_118px] xl:gap-3 xl:px-5 xl:text-lg">
+        <div className="grid grid-cols-[minmax(7.5rem,1fr)_3.25rem_2.25rem_2.5rem_3rem] items-end gap-1 px-3 text-[10px] font-black uppercase text-white/70 xl:grid-cols-[minmax(13rem,1fr)_6rem_4.25rem_4.25rem_5rem] xl:gap-3 xl:px-5 xl:text-lg">
           <p>Name</p>
           <p className="text-center">Round</p>
           <p className="text-center">Ticks</p>
@@ -131,7 +131,7 @@ function PlayerRow({
 
   return (
     <div
-      className={`grid min-h-20 grid-cols-[minmax(0,1fr)_88px_58px_58px_76px] items-center gap-2 rounded-lg border-4 px-3 py-3 text-night transition-all duration-150 xl:min-h-24 xl:grid-cols-[minmax(0,1fr)_150px_96px_96px_118px] xl:gap-3 xl:px-5 ${
+      className={`grid min-h-20 grid-cols-[minmax(7.5rem,1fr)_3.25rem_2.25rem_2.5rem_3rem] items-center gap-1 rounded-lg border-4 px-3 py-3 text-night transition-all duration-150 xl:min-h-24 xl:grid-cols-[minmax(13rem,1fr)_6rem_4.25rem_4.25rem_5rem] xl:gap-3 xl:px-5 ${
         isCurrentThrower
           ? isRed
             ? "border-white bg-red-50 shadow-[0_0_0_6px_rgba(255,255,255,0.2),0_0_34px_rgba(255,255,255,0.4)]"
@@ -139,11 +139,11 @@ function PlayerRow({
           : "border-transparent bg-white/90"
       }`}
     >
-      <p className="truncate text-3xl font-black leading-none xl:text-6xl">{player.name}</p>
-      <p className="text-center text-5xl font-black leading-none xl:text-8xl">{player.roundScore}</p>
-      <p className="text-center text-3xl font-black leading-none xl:text-6xl">{player.tickStreak}</p>
-      <p className="text-center text-3xl font-black leading-none xl:text-6xl">{player.total300s}</p>
-      <p className="text-center text-2xl font-black leading-none text-night/70 xl:text-5xl">
+      <p className="min-w-0 truncate text-2xl font-black leading-none xl:text-5xl">{player.name}</p>
+      <p className="text-center text-4xl font-black leading-none xl:text-7xl">{player.roundScore}</p>
+      <p className="text-center text-2xl font-black leading-none xl:text-5xl">{player.tickStreak}</p>
+      <p className="text-center text-2xl font-black leading-none xl:text-5xl">{player.total300s}</p>
+      <p className="text-center text-xl font-black leading-none text-night/70 xl:text-4xl">
         {player.total}
       </p>
     </div>
